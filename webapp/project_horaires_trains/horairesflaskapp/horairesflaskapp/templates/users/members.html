@@ -1,0 +1,139 @@
+
+{% extends "layout.html" %}
+{% block content %}
+    <h1>Bienvenue {{ current_user.username }}</h1>
+    <h3>Vos cartes enregistrées</h3>
+
+
+    <div ng-controller="MyCtrl">
+
+        <ul class="list-group">
+            <div class="list-group" ng-repeat="board in boards as results">
+                <a href="#demo" class="list-group-item clearfix" data-toggle="collapse">
+                    <span class="glyphicon glyphicon-file"></span>
+                    carte {a board.name a}
+                    <span class="pull-right">
+                      <button class="btn btn-xs btn-warning" ng-click="remove_board(board.name)">
+                        <span class="glyphicon glyphicon-trash"></span>
+                      </button>
+                    </span>
+                </a>
+                <div id="demo" class="collapse">
+                    <form id="newscreenForm" class="form form-register" method="POST" action="/boards/" role="form">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                        <div class="form-group">
+                            <h3>Ajouter un ecran </h3>
+                            {{form_screen.gare_depart(placeholder="Gare de départ", class_="form-control", ng_model="gare_depart")}}
+                            {{form_screen.gare_arrive(placeholder="Gare d\'arrivée", class_="form-control", ng_model="gare_arrive")}}
+                        </div>
+                        <p><input class="btn btn-default btn-submit" type="button" value="Enregistrer" onclick="this.blur();"></p>
+                    </form>
+                </div>
+            </div>
+        </ul>
+
+
+
+
+    <form id="newboardForm" class="form form-register" method="POST" action="/boards/" role="form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+        <div class="form-group">
+            <h3>Ajouter une carte</h3>
+            {{form_board.name(placeholder="Nom de carte", class_="form-control", ng_model="board_name")}}
+        </div>
+        <p><input class="btn btn-default btn-submit" type="button" value="Enregistrer" onclick="this.blur();" ng-click="add_board(board_name)"></p>
+    </form>
+    </div>
+
+
+
+
+
+{% endblock %}
+
+
+{% block js_debut %}
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+<script>
+
+
+
+var app = angular.module('myApp',[])
+
+
+app.config(['$interpolateProvider', function($interpolateProvider) {
+  $interpolateProvider.startSymbol('{a');
+  $interpolateProvider.endSymbol('a}');
+}]);
+
+
+app.controller('MyCtrl', ['$scope','$http',MyCtrl])
+
+function MyCtrl($scope,$http) {
+
+    $scope.boards = [];
+
+    {% for b in boards  %}
+    $scope.boards.push({ "name" : "{{b.name}}" });
+    {% endfor %}
+
+    console.log($scope.boards)
+
+    $scope.add_board = function(name){
+
+          $http({
+          method: 'POST',
+          url: '/boards/',
+          headers: { 'X-CSRFToken': '{{ csrf_token() }}'},
+          data: {name: name}
+        }).then(function successCallback(response) {
+            if (response.data.status == "OK"){
+                $scope.boards.push({ "name" : name });
+                document.getElementById("newboardForm").reset();
+            } else {
+                alert(response.data.message)
+            }
+          }, function errorCallback(response) {
+            console.log(response);
+          });
+
+    }
+
+    $scope.remove_board = function(name) {
+        console.log("remove board " + name);
+        console.log({ "name" : name })
+
+        var index=-1;
+
+        for(var i=0;i<$scope.boards.length;i++){
+
+            if ($scope.boards[i].name == name){
+                index=i
+                break;
+            }
+
+        }
+
+        $http({
+          method: 'DELETE',
+          url: '/boards/',
+          headers: { 'X-CSRFToken': '{{ csrf_token() }}'},
+          params: {name: name}
+        }).then(function successCallback(response) {
+            if (response.data.status == "OK"){
+                if (index > -1)
+                    $scope.boards.splice(index,1)
+            } else {
+                alert(response.data.message)
+            }
+          }, function errorCallback(response) {
+            console.log(response);
+          });
+    }
+
+
+}
+</script>
+{% endblock %}
+
+
