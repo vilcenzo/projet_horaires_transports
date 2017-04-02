@@ -17,6 +17,12 @@ class CRUDMixin(object):
         instance = cls(**kwargs)
         return instance.save()
 
+    @classmethod
+    def create_bulk(cls, **kwargs):
+        """Create a new record and save it the database."""
+        instance = cls(**kwargs)
+        return instance.save(commit=False)
+
     def update(self, commit=True, **kwargs):
         """Update specific fields of a record."""
         for attr, value in kwargs.items():

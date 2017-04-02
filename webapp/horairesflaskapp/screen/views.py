@@ -1,28 +1,35 @@
-# -*- coding: utf-8 -*-
-"""User views."""
 from flask import Blueprint, render_template, request, flash, redirect, url_for,jsonify
 from flask_login import login_required, current_user
 from horairesflaskapp.board.forms import NewBoardForm
-from horairesflaskapp.board.models import Board
 from horairesflaskapp.screen.models import Screen
 from horairesflaskapp.utils import flash_errors
+from horairesflaskapp.screen.forms import NewScreenForm
 
 
-blueprint = Blueprint('board', __name__, url_prefix='/boards', static_folder='../static')
+blueprint = Blueprint('screen', __name__, url_prefix='/screens', static_folder='../static')
 
 
 @blueprint.route('/', methods=['POST','DELETE'])
 @login_required
-def board():
-    form = NewBoardForm(request.form)
+def screen():
+    form = NewScreenForm(request.form)
     if request.method == 'POST':
+
         if form.validate():
             try:
-                board = Board.create(name=form.name.data, user_id=current_user.id, chip_id=form.chip_id.data)
+
+                print(form.titre_affichage.data)
+
+                screen = Screen.create(board_id=form.board_id.data, gare_depart=int(form.gare_depart.data),
+                                       gare_arrive=int(form.gare_arrive.data), titre_affichage=form.titre_affichage.data,
+                                       type_transport=form.type_transport.data)
+
+
             except Exception as e:
                 return jsonify({'status': "NOK", 'message': str(e), 'error_type': 'db_error'})
 
-            return jsonify({'status': "OK", 'id':board.id})
+            return jsonify({'status': "OK", 'id': screen.id})
+
         else:
             for fieldName, errorMessages in form.errors.items():
                 print(fieldName)
@@ -32,32 +39,21 @@ def board():
 
     elif request.method == 'DELETE':
 
-        query = Board.query.filter_by(id=request.args["board_id"], user_id=current_user.id)
+        query = Screen.query.filter_by(id=request.args["screen_id"])
 
         if query.count() == 0:
-            message = "No record matching this board id"
+            message = "No record matching this screen id"
             status = "NOK"
-            return jsonify({'status':status,'message':message})
+            return jsonify({'status':status,'message':message, 'error_type': 'db_error'})
         elif query.count() > 1:
-            message = "More than one record matching this board id"
+            message = "More than one record matching this screen id"
             status = "NOK"
-            return jsonify({'status': status, 'message': message})
-
-
-        try:
-            for s in Screen.query.filter_by(board_id=request.args["board_id"]).all():
-                s.delete()
-        except Exception as e:
-            return jsonify({'status': "NOK", 'message': str(e)})
-
+            return jsonify({'status': status, 'message': message, 'error_type': 'db_error'})
 
         try:
             query.first().delete()
         except Exception as e:
-            return jsonify({'status': "NOK", 'message': str(e)})
-
-
-
+            return jsonify({'status': "NOK", 'message': str(e), 'error_type': 'db_error'})
 
         return jsonify({'status': "OK"})
 

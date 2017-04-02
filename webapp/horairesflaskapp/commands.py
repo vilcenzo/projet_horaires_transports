@@ -1,17 +1,34 @@
 # -*- coding: utf-8 -*-
 """Click commands."""
 import os
+import csv
 from glob import glob
 from subprocess import call
 
 import click
-from flask import current_app
+from flask import current_app, Flask
 from flask.cli import with_appcontext
+from flask_sqlalchemy import SQLAlchemy
 from werkzeug.exceptions import MethodNotAllowed, NotFound
+
+#from horairesflaskapp.app import create_app
+from horairesflaskapp.stations_transilien.models import StationTransilien
 
 HERE = os.path.abspath(os.path.dirname(__file__))
 PROJECT_ROOT = os.path.join(HERE, os.pardir)
 TEST_PATH = os.path.join(PROJECT_ROOT, 'tests')
+
+
+@click.command()
+@with_appcontext
+def fill_stations_transilien():
+
+    with open(os.path.join(PROJECT_ROOT, "data/sncf-gares-et-arrets-transilien-ile-de-france.csv")) as csvfile:
+        stationsreader = csv.reader(csvfile, delimiter=';')
+        #pour eviter le header
+        next(stationsreader, None)
+        for row in stationsreader:
+            StationTransilien.create(name=row[4], uic=row[1])
 
 
 @click.command()

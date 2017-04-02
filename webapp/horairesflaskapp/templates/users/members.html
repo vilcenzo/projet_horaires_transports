@@ -8,26 +8,54 @@
     <div ng-controller="MyCtrl">
 
         <ul class="list-group">
-            <div class="list-group" ng-repeat="board in boards as results">
-                <a href="#demo" class="list-group-item clearfix" data-toggle="collapse">
+            <div class="list-group"  ng-repeat="board in boards as results">
+                <a href="#demo{a board.name a}" class="list-group-item clearfix" style="background-color:powderblue;" data-toggle="collapse">
                     <span class="glyphicon glyphicon-file"></span>
-                    carte {a board.name a}
+                    Carte: {a board.name a} &nbsp;&nbsp;&nbsp;&nbsp Numéro de série: {a board.chip_id a}
                     <span class="pull-right">
-                      <button class="btn btn-xs btn-warning" ng-click="remove_board(board.name)">
+                      <button class="btn btn-xs btn-warning" ng-click="remove_board(board.board_id)">
                         <span class="glyphicon glyphicon-trash"></span>
                       </button>
                     </span>
                 </a>
-                <div id="demo" class="collapse">
+
+                <div id="demo{a board.name a}" class="collapse" style="margin-top:10px">
+
+
+
+                    <ul class="list-group">
+                        <div class="list-group" ng-repeat="screen in screens">
+                            <a href="#" class="list-group-item clearfix" ng-if="screen.board_id === board.board_id">
+                                <span class="glyphicon glyphicon-file"></span>
+                                Ecran: {a screen.titre_affichage a} <br> &nbsp;&nbsp;&nbsp;&nbsp Type: {a screen.type_transport a} <br> &nbsp;&nbsp;&nbsp;&nbsp Départ: {a screen.gare_depart a} <br>&nbsp;&nbsp;&nbsp;&nbsp Arrivée: {a screen.gare_arrive a}
+                                <span class="pull-right">
+                                  <button class="btn btn-xs btn-warning" ng-click="remove_screen(screen.screen_id)">
+                                    <span class="glyphicon glyphicon-trash"></span>
+                                  </button>
+                                </span>
+                            </a>
+                        </div>
+                    </ul>
+
+
                     <form id="newscreenForm" class="form form-register" method="POST" action="/boards/" role="form">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                         <div class="form-group">
-                            <h3>Ajouter un ecran </h3>
-                            {{form_screen.gare_depart(placeholder="Gare de départ", class_="form-control", ng_model="gare_depart")}}
-                            {{form_screen.gare_arrive(placeholder="Gare d\'arrivée", class_="form-control", ng_model="gare_arrive")}}
+                            <h4>Ajouter un ecran </h4>
+                            {{form_screen.titre_affichage(placeholder="Titre affichage (entre 1 et 15 lettres)", class_="form-control", style="margin-top:10px", ng_model="titre_affichage")}}
+                            {{form_screen.type_transport(class_="form-control", style="margin-top:10px", ng_model="type_transport")}}
+                            {{form_screen.gare_depart(class_="form-control", style="margin-top:10px", ng_model="gare_depart")}}
+                            {{form_screen.gare_arrive(class_="form-control", style="margin-top:10px", ng_model="gare_arrive")}}
                         </div>
-                        <p><input class="btn btn-default btn-submit" type="button" value="Enregistrer" onclick="this.blur();"></p>
+                        <p><input class="btn btn-default btn-submit" type="button" value="Enregistrer" onclick="this.blur();" ng-click="add_screen(board.board_id,gare_depart,gare_arrive,titre_affichage,type_transport, form_screen)"></p>
                     </form>
+
+                    <ul>
+                        <li ng-repeat="(field, errors) in form_messages_screen">
+                            <p ng-repeat="e in errors">Erreur de saisie: {a e a}</p>
+                        </li>
+                    </ul>
+
                 </div>
             </div>
         </ul>
@@ -40,9 +68,17 @@
         <div class="form-group">
             <h3>Ajouter une carte</h3>
             {{form_board.name(placeholder="Nom de carte", class_="form-control", ng_model="board_name")}}
+            {{form_board.chip_id(placeholder="Numéro de série carte", class_="form-control", style="margin-top:10px", ng_model="chip_id")}}
         </div>
-        <p><input class="btn btn-default btn-submit" type="button" value="Enregistrer" onclick="this.blur();" ng-click="add_board(board_name)"></p>
+        <p><input class="btn btn-default btn-submit" type="button" value="Enregistrer" onclick="this.blur();" ng-click="add_board(board_name, chip_id)"></p>
     </form>
+
+    <ul>
+        <li ng-repeat="(field, errors) in form_messages_board">
+            <p ng-repeat="e in errors">Erreur de saisie: {a e a}</p>
+        </li>
+    </ul>
+
     </div>
 
 
@@ -67,31 +103,92 @@ app.config(['$interpolateProvider', function($interpolateProvider) {
 }]);
 
 
-app.controller('MyCtrl', ['$scope','$http',MyCtrl])
+app.controller('MyCtrl', ['$scope','$http', MyCtrl])
 
 function MyCtrl($scope,$http) {
+
+    $scope.form_messages_screen = {}
+    $scope.form_messages_board = {}
 
     $scope.boards = [];
 
     {% for b in boards  %}
-    $scope.boards.push({ "name" : "{{b.name}}" });
+    $scope.boards.push({ "name" : "{{b.name}}", "board_id":{{b.id}}, "chip_id":"{{b.chip_id}}" });
     {% endfor %}
 
     console.log($scope.boards)
 
-    $scope.add_board = function(name){
+
+
+    $scope.screens = [];
+
+    var gare_depart_name;
+    var gare_arrive_name;
+
+    {% for s in screens  %}
+
+        $http({
+          method: 'GET',
+          url: '/stations_transilien/',
+          headers: { 'X-CSRFToken': '{{ csrf_token() }}'},
+          params: {uic: "{{s.gare_depart}}" }
+        }).then(function successCallback(response) {
+             gare_depart_name = response.data.name
+
+             $http({
+              method: 'GET',
+              url: '/stations_transilien/',
+              headers: { 'X-CSRFToken': '{{ csrf_token() }}'},
+              params: {uic: "{{s.gare_arrive}}" }
+            }).then(function successCallback(response) {
+                 console.log(response.data.name)
+                 gare_arrive_name = response.data.name
+
+                 console.log(gare_depart_name)
+                 console.log(gare_arrive_name)
+
+                 $scope.screens.push({ "gare_depart" : gare_depart_name, "gare_arrive": gare_arrive_name,
+                          "screen_id": {{s.id}}, "board_id": {{s.board_id}}, "titre_affichage": "{{s.titre_affichage|safe}}",
+                           "type_transport": "{{s.type_transport}}" });
+
+              }, function errorCallback(response) {
+                console.log(response);
+              });
+
+
+          }, function errorCallback(response) {
+            console.log(response);
+          });
+
+
+
+
+
+
+
+    {% endfor %}
+
+    console.log($scope.screens)
+
+
+    $scope.add_board = function(name, chip_id){
 
           $http({
           method: 'POST',
           url: '/boards/',
-          headers: { 'X-CSRFToken': '{{ csrf_token() }}'},
-          data: {name: name}
+          headers: { 'X-CSRFToken': '{{ csrf_token() }}', 'Content-Type': 'application/x-www-form-urlencoded'},
+          data: $.param({name: name, chip_id: chip_id})
         }).then(function successCallback(response) {
             if (response.data.status == "OK"){
-                $scope.boards.push({ "name" : name });
+                $scope.boards.push({ "name" : name, "board_id" : response.data.id, "chip_id" : chip_id });
                 document.getElementById("newboardForm").reset();
             } else {
-                alert(response.data.message)
+                if (response.data.error_type == 'db_error')
+                    alert(response.data.message)
+                else {
+                    console.log(response.data.message)
+                    $scope.form_messages_board = response.data.message
+                }
             }
           }, function errorCallback(response) {
             console.log(response);
@@ -99,15 +196,14 @@ function MyCtrl($scope,$http) {
 
     }
 
-    $scope.remove_board = function(name) {
-        console.log("remove board " + name);
-        console.log({ "name" : name })
+    $scope.remove_board = function(id) {
+        console.log("remove board " + id);
 
         var index=-1;
 
         for(var i=0;i<$scope.boards.length;i++){
 
-            if ($scope.boards[i].name == name){
+            if ($scope.boards[i].board_id == id){
                 index=i
                 break;
             }
@@ -118,7 +214,7 @@ function MyCtrl($scope,$http) {
           method: 'DELETE',
           url: '/boards/',
           headers: { 'X-CSRFToken': '{{ csrf_token() }}'},
-          params: {name: name}
+          params: {board_id: id}
         }).then(function successCallback(response) {
             if (response.data.status == "OK"){
                 if (index > -1)
@@ -130,6 +226,76 @@ function MyCtrl($scope,$http) {
             console.log(response);
           });
     }
+
+
+    $scope.add_screen = function(board_id,gare_depart,gare_arrive, titre_affichage, type_transport){
+
+    console.log(titre_affichage)
+
+
+          $http({
+          method: 'POST',
+          url: '/screens/',
+          headers: { 'X-CSRFToken': '{{ csrf_token() }}', 'Content-Type': 'application/x-www-form-urlencoded'},
+          data: $.param({board_id: board_id, gare_depart: gare_depart, gare_arrive: gare_arrive,
+                 titre_affichage: titre_affichage, type_transport: type_transport })
+        }).then(function successCallback(response) {
+            console.log(response);
+            if (response.data.status == "OK"){
+
+                $scope.screens.push({ "gare_depart" : gare_depart, "gare_arrive": gare_arrive, "titre_affichage": titre_affichage,
+                          "type_transport": type_transport, "screen_id": response.data.id, "board_id": board_id });
+
+                document.getElementById("newscreenForm").reset();
+                $scope.form_messages_screen = {}
+            } else {
+                if (response.data.error_type == 'db_error')
+                    alert(response.data.message)
+                else {
+                    console.log(response.data.message)
+                    $scope.form_messages_screen = response.data.message
+                }
+            }
+          }, function errorCallback(response) {
+            console.log(response);
+          });
+
+    }
+
+    $scope.remove_screen = function(id) {
+        console.log("remove screen " + id);
+
+        var index=-1;
+
+        for(var i=0;i<$scope.screens.length;i++){
+
+            if ($scope.screens[i].screen_id == id){
+                index=i
+                break;
+            }
+
+        }
+
+        console.log("index:" + index)
+
+        $http({
+          method: 'DELETE',
+          url: '/screens/',
+          headers: { 'X-CSRFToken': '{{ csrf_token() }}'},
+          params: {screen_id: id}
+        }).then(function successCallback(response) {
+            if (response.data.status == "OK"){
+                if (index > -1)
+                    $scope.screens.splice(index,1)
+            } else {
+                alert(response.data.message)
+            }
+          }, function errorCallback(response) {
+            console.log(response);
+          });
+    }
+
+
 
 
 }

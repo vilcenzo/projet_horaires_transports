@@ -3,7 +3,7 @@
 from flask import Flask, render_template
 
 
-from horairesflaskapp import commands, public, user, board
+from horairesflaskapp import commands, public, user, board, screen, stations_transilien
 from horairesflaskapp.assets import assets
 from horairesflaskapp.extensions import bcrypt, cache, csrf_protect, db, debug_toolbar, login_manager, migrate
 from horairesflaskapp.settings import ProdConfig
@@ -42,6 +42,8 @@ def register_blueprints(app):
     app.register_blueprint(public.views.blueprint)
     app.register_blueprint(user.views.blueprint)
     app.register_blueprint(board.views.blueprint)
+    app.register_blueprint(screen.views.blueprint)
+    app.register_blueprint(stations_transilien.views.blueprint)
     return None
 
 
@@ -63,7 +65,9 @@ def register_shellcontext(app):
         """Shell context objects."""
         return {
             'db': db,
-            'User': user.models.User}
+            'User': user.models.User,
+            'Screen': screen.models.Screen,
+            'StationTransilien': stations_transilien.models.StationTransilien}
 
     app.shell_context_processor(shell_context)
 
@@ -74,3 +78,4 @@ def register_commands(app):
     app.cli.add_command(commands.lint)
     app.cli.add_command(commands.clean)
     app.cli.add_command(commands.urls)
+    app.cli.add_command(commands.fill_stations_transilien)

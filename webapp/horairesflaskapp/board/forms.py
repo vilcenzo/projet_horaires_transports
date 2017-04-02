@@ -20,7 +20,9 @@ class NewBoardForm(Form):
     """Register form."""
 
     name = StringField('Nom Carte',
-                           validators=[DataRequired(), Length(min=3, max=25)],widget=AngularJSTextInput())
+                           validators=[DataRequired(message="Le nom de la carte est obligatoire"), Length(min=3, max=25, message="Le nom de carte doit contenir entre 3 et 25 caractères")],widget=AngularJSTextInput())
+    chip_id = StringField('Numero Série Carte',
+                       validators=[DataRequired(message="Le numéro de série de la carte est obligatoire"), Length(min=3, max=25, message="Le numéro de série de la carte doit contenir entre 3 et 25 caractères")], widget=AngularJSTextInput())
 
     def __init__(self, *args, **kwargs):
         """Create instance."""
@@ -32,8 +34,8 @@ class NewBoardForm(Form):
         initial_validation = super(NewBoardForm, self).validate()
         if not initial_validation:
             return False
-        #board = Board.query.filter_by(name=self.name.data).first()
-        #if board:
-        #    self.name.errors.append('Nom de carte deja utilise')
-        #    return False
+        board = Board.query.filter_by(chip_id=self.chip_id.data).first()
+        if board:
+            self.chip_id.errors.append('Numéro de série deja utilise')
+            return False
         return True

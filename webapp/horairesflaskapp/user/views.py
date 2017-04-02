@@ -6,6 +6,7 @@ from horairesflaskapp.board.forms import NewBoardForm
 from horairesflaskapp.screen.forms import NewScreenForm
 from horairesflaskapp.board.models import Board
 from horairesflaskapp.screen.models import Screen
+from horairesflaskapp.stations_transilien.models import StationTransilien
 
 
 
@@ -22,5 +23,7 @@ def members():
     boards = Board.query.filter_by(user_id=current_user.id).all()
     screens = []
     for b in boards:
-        screens.append(Screen.query.filter_by(board_id=b.id).all())
+        screens.extend(Screen.query.filter_by(board_id=b.id).all())
+    for s in screens:
+        print(s.titre_affichage)
     return render_template('users/members.html', form_board=form_board, boards=boards, form_screen=form_screen, screens=screens)
