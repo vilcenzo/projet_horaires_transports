@@ -146,6 +146,8 @@ void fetch_ecrans_configuration() {
   print_debug("making GET request to get screens configurations");
   httpclient_params_server.get("/ecrans");
 
+  Serial.println("/screens/info?num_serie=" + String(ESP.getChipId()));
+
   // read the status code and body of the response
   statusCode = httpclient_params_server.responseStatusCode();
   response = httpclient_params_server.responseBody();
@@ -365,6 +367,9 @@ void setup() {
   Serial.begin(115200);
   Serial.println();
   Serial.println();
+
+  Serial.print(" ESP8266 Chip id = ");
+  Serial.println(ESP.getChipId());
 
   initialise_ecran_physique();
   connect_wifi();

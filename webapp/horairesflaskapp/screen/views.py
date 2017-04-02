@@ -4,6 +4,7 @@ from horairesflaskapp.board.forms import NewBoardForm
 from horairesflaskapp.screen.models import Screen
 from horairesflaskapp.utils import flash_errors
 from horairesflaskapp.screen.forms import NewScreenForm
+from horairesflaskapp.board.models import Board
 
 
 blueprint = Blueprint('screen', __name__, url_prefix='/screens', static_folder='../static')
@@ -56,4 +57,23 @@ def screen():
             return jsonify({'status': "NOK", 'message': str(e), 'error_type': 'db_error'})
 
         return jsonify({'status': "OK"})
+
+
+@blueprint.route('/info', methods=['GET'])
+def get_info():
+    chip_id = request.args['num_serie']
+
+    board = Board.query.filter_by(chip_id=chip_id).first()
+
+    screens = Screen.query.filter_by(board_id = board.id).all()
+    nbr_ecrans = Screen.query.filter_by(board_id = board.id).count()
+
+    ecrans = []
+
+    for s in screens:
+        ecrans.append({'nbr_chars_par_ligne': 50, 'nbr_lignes': 4, 'header': s.titre_affichage,
+                       'gare_depart': s.gare_depart, 'gare_arrivee': s.gare_arrive})
+
+
+    return jsonify(**dict(nbr_ecrans=nbr_ecrans, ecrans=ecrans))
 

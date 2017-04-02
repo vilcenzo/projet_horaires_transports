@@ -42,7 +42,7 @@
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                         <div class="form-group">
                             <h4>Ajouter un ecran </h4>
-                            {{form_screen.titre_affichage(placeholder="Titre affichage (entre 1 et 15 lettres)", class_="form-control", style="margin-top:10px", ng_model="titre_affichage")}}
+                            {{form_screen.titre_affichage(placeholder="Titre affichage (entre 1 et 18 lettres)", class_="form-control", style="margin-top:10px", ng_model="titre_affichage")}}
                             {{form_screen.type_transport(class_="form-control", style="margin-top:10px", ng_model="type_transport")}}
                             {{form_screen.gare_depart(class_="form-control", style="margin-top:10px", ng_model="gare_depart")}}
                             {{form_screen.gare_arrive(class_="form-control", style="margin-top:10px", ng_model="gare_arrive")}}

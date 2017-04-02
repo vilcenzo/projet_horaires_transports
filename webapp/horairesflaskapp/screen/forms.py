@@ -24,7 +24,7 @@ class NewScreenForm(Form):
 
     titre_affichage = StringField('Titre Affichage',
                                   validators=[DataRequired(message="Titre affichage doit être renseigné"),
-                                              Length(min=1, max=15, message="Titre affichage doit contenir entre 1 et 15 lettres")],
+                                              Length(min=1, max=18, message="Titre affichage doit contenir entre 1 et 18 lettres")],
                                   widget=AngularJSTextInput())
 
     gare_depart = SelectField('Gare de Depart', choices=[('', u'Gare de départ')])
