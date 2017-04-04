@@ -33,7 +33,7 @@ const char *pass =  "xobox232";   //
 
 WiFiClient wclient;
 const char* server = "54.171.231.139";
-const int flaskPort = 6000;
+const int flaskPort = 7000;
 
 HttpClient httpclient_params_server = HttpClient(wclient, server, flaskPort);
 HttpClient httpclient_transilien_server = HttpClient(wclient, "api.transilien.com");
@@ -65,7 +65,7 @@ public:
 };
 EventTrains* events_trains;
 
-int debug = 0;
+int debug = 1;
 
 void print_debug(String mess){
   if (debug == 1)
@@ -144,7 +144,7 @@ void fetch_ecrans_configuration() {
 
 
   print_debug("making GET request to get screens configurations");
-  httpclient_params_server.get("/ecrans");
+  httpclient_params_server.get("/screens/info?num_serie=" + String(ESP.getChipId()));
 
   Serial.println("/screens/info?num_serie=" + String(ESP.getChipId()));
 
@@ -209,13 +209,15 @@ void get_horaires_train(int ecran_index){
   httpclient_transilien_server.sendBasicAuth("tnhtn595", "NUh53e4u");
   httpclient_transilien_server.endRequest();
 
+  print_debug("/gare/" + String(ecrans[ecran_index].gare_depart) + "/depart/" + String(ecrans[ecran_index].gare_arrivee));
+
   // read the status code and body of the response
   statusCode = httpclient_transilien_server.responseStatusCode();
   response = httpclient_transilien_server.responseBody();
 
-  /*print_debug("Status code: " + String(statusCode));
+  print_debug("Status code: " + String(statusCode));
   print_debug("Response: ");
-  print_debug(response);*/
+  print_debug(response);
 
   if (statusCode == 200) {
 

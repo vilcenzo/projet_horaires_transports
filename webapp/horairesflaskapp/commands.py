@@ -28,7 +28,7 @@ def fill_stations_transilien():
         #pour eviter le header
         next(stationsreader, None)
         for row in stationsreader:
-            StationTransilien.create(name=row[4], uic=row[1])
+            StationTransilien.create(name=row[3], uic=row[0])
 
 
 @click.command()
