@@ -53,8 +53,8 @@ class NewScreenForm(Form):
     def __init__(self, *args, **kwargs):
         """Create instance."""
         super(NewScreenForm, self).__init__(*args, **kwargs)
-        self.gare_depart.choices.extend([(str(s.uic), s.name) for s in StationTransilien.query.all()])
-        self.gare_arrive.choices.extend([(str(s.uic), s.name) for s in StationTransilien.query.all()])
+        self.gare_depart.choices.extend([(str(s.uic), s.name) for s in StationTransilien.query.order_by(StationTransilien.name).all()])
+        self.gare_arrive.choices.extend([(str(s.uic), s.name) for s in StationTransilien.query.order_by(StationTransilien.name).all()])
 
         self.board = None
 

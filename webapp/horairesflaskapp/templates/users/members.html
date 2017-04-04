@@ -94,6 +94,7 @@
 
 
 
+
 var app = angular.module('myApp',[])
 
 
@@ -243,11 +244,43 @@ function MyCtrl($scope,$http) {
             console.log(response);
             if (response.data.status == "OK"){
 
-                $scope.screens.push({ "gare_depart" : gare_depart, "gare_arrive": gare_arrive, "titre_affichage": titre_affichage,
-                          "type_transport": type_transport, "screen_id": response.data.id, "board_id": board_id });
+                $http({
+                  method: 'GET',
+                  url: '/stations_transilien/',
+                  headers: { 'X-CSRFToken': '{{ csrf_token() }}'},
+                  params: {uic: gare_depart }
+                }).then(function successCallback(response_name_depart) {
+                     gare_depart_name = response_name_depart.data.name
 
-                document.getElementById("newscreenForm").reset();
-                $scope.form_messages_screen = {}
+                     $http({
+                      method: 'GET',
+                      url: '/stations_transilien/',
+                      headers: { 'X-CSRFToken': '{{ csrf_token() }}'},
+                      params: {uic: gare_arrive }
+                         }).then(function successCallback(response_name_arrivee) {
+
+                             console.log(response_name_arrivee.data.name)
+                             gare_arrive_name = response_name_arrivee.data.name
+
+                             console.log(gare_depart_name)
+                             console.log(gare_arrive_name)
+
+                             $scope.screens.push({ "gare_depart" : gare_depart_name, "gare_arrive": gare_arrive_name, "titre_affichage": titre_affichage,
+                                      "type_transport": type_transport, "screen_id": response.data.id, "board_id": board_id });
+
+                             document.getElementById("newscreenForm").reset();
+                             $scope.form_messages_screen = {}
+
+                          }, function errorCallback(response_name_arrivee) {
+                            console.log(response_name_arrivee);
+                          });
+
+
+                      }, function errorCallback(response_name_depart) {
+                        console.log(response_name_depart);
+                      });
+
+
             } else {
                 if (response.data.error_type == 'db_error')
                     alert(response.data.message)
