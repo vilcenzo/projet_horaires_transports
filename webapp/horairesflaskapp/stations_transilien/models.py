@@ -8,7 +8,7 @@ class StationTransilien(SurrogatePK, Model):
 
     __tablename__ = 'stations_transiliens'
     name = Column(db.String(80), unique=True, nullable=False)
-    uic = Column(db.Integer(), unique=True, nullable=False)
+    uic = Column(db.Integer(), unique=False, nullable=False)
 
     def __init__(self, name, uic, **kwargs):
         """Create instance."""
