@@ -2,29 +2,34 @@
 {% extends "layout.html" %}
 {% block content %}
     <h1>Bienvenue {{ current_user.username }}</h1>
-    <h3>Vos cartes enregistrées</h3>
+    <h3>Vos tchoutchoucs enregistrées</h3>
 
 
     <div ng-controller="MyCtrl">
 
         <ul class="list-group">
-            <div class="list-group"  ng-repeat="board in boards as results">
-                <a href="#demo{a board.name a}" class="list-group-item clearfix" style="background-color:powderblue;" data-toggle="collapse">
-                    <span class="glyphicon glyphicon-file"></span>
-                    Carte: {a board.name a} &nbsp;&nbsp;&nbsp;&nbsp Numéro de série: {a board.chip_id a}
-                    <span class="pull-right">
-                      <button class="btn btn-xs btn-warning" ng-click="remove_board(board.board_id)">
-                        <span class="glyphicon glyphicon-trash"></span>
-                      </button>
-                    </span>
-                </a>
+            <div class="list-group"  ng-repeat="board in boards as results" ng-cloak>
+                <span data-toggle="tooltip">
+                    <a href="#demo{a board.name a}" class="list-group-item clearfix" style="background-color:powderblue;" data-toggle="collapse"
+                       title="Cliquez sur cette barre bleue pour voir quels écrans sont configurés sur ce tchoutchouc.Cliquez de nouveau sur cette barre bleue pour cacher ces écrans">
+                        <span class="glyphicon glyphicon-file"></span>
+                        Tchoutchouc: {a board.name a} &nbsp;&nbsp;&nbsp;&nbsp Numéro de série: {a board.chip_id a} &nbsp;&nbsp;&nbsp;&nbsp
+                        <span class="glyphicon glyphicon-plus-sign"></span> Ajouter un écran&nbsp;&nbsp;
+                        <span class="glyphicon glyphicon-info-sign"></span>
+                        <span class="pull-right">
+                          <button class="btn btn-xs btn-warning" ng-click="remove_board(board.board_id)">
+                            <span class="glyphicon glyphicon-trash"></span>
+                          </button>
+                        </span>
+                    </a>
+                </span>
 
                 <div id="demo{a board.name a}" class="collapse" style="margin-top:10px">
 
 
 
                     <ul class="list-group">
-                        <div class="list-group" ng-repeat="screen in screens">
+                        <div class="list-group" ng-repeat="screen in screens" ng-cloak>
                             <a href="#" class="list-group-item clearfix" ng-if="screen.board_id === board.board_id">
                                 <span class="glyphicon glyphicon-file"></span>
                                 Ecran: {a screen.titre_affichage a} <br> &nbsp;&nbsp;&nbsp;&nbsp Type: {a screen.type_transport a} <br> &nbsp;&nbsp;&nbsp;&nbsp Départ: {a screen.gare_depart a} <br>&nbsp;&nbsp;&nbsp;&nbsp Arrivée: {a screen.gare_arrive a}
@@ -35,6 +40,9 @@
                                 </span>
                             </a>
                         </div>
+                        <div ng-hide="screens.length" ng-cloak>
+                          <p>Pas d'écrans enregistrés.</p>
+                        <div>
                     </ul>
 
 
@@ -42,7 +50,7 @@
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                         <div class="form-group">
                             <h4>Ajouter un ecran </h4>
-                            {{form_screen.titre_affichage(placeholder="Titre affichage (entre 1 et 18 lettres)", class_="form-control", style="margin-top:10px", ng_model="titre_affichage")}}
+                            {{form_screen.titre_affichage(placeholder="Titre affichage, max 18 lettres (1ère ligne de l'afficheur du tchoutchouc)", class_="form-control", style="margin-top:10px", ng_model="titre_affichage")}}
                             {{form_screen.type_transport(class_="form-control", style="margin-top:10px", ng_model="type_transport")}}
                             {{form_screen.gare_depart(class_="form-control", style="margin-top:10px", ng_model="gare_depart")}}
                             {{form_screen.gare_arrive(class_="form-control", style="margin-top:10px", ng_model="gare_arrive")}}
@@ -51,13 +59,17 @@
                     </form>
 
                     <ul>
-                        <li ng-repeat="(field, errors) in form_messages_screen">
-                            <p ng-repeat="e in errors">Erreur de saisie: {a e a}</p>
+                        <li ng-repeat="(field, errors) in form_messages_screen" ng-cloak>
+                            <p ng-repeat="e in errors" ng-cloak>Erreur de saisie: {a e a}</p>
                         </li>
                     </ul>
 
                 </div>
             </div>
+
+            <div ng-hide="boards.length" ng-cloak>
+              <p>Pas de tchoutchoucs enregistrés.</p>
+            <div>
         </ul>
 
 
@@ -66,9 +78,9 @@
     <form id="newboardForm" class="form form-register" method="POST" action="/boards/" role="form">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
         <div class="form-group">
-            <h3>Ajouter une carte</h3>
-            {{form_board.name(placeholder="Nom de carte", class_="form-control", ng_model="board_name")}}
-            {{form_board.chip_id(placeholder="Numéro de série carte", class_="form-control", style="margin-top:10px", ng_model="chip_id")}}
+            <h3>Ajouter un tchoutchouc</h3>
+            {{form_board.name(placeholder="Nom familier", class_="form-control", ng_model="board_name")}}
+            {{form_board.chip_id(placeholder="Numéro de série du tchoutchouc", class_="form-control", style="margin-top:10px", ng_model="chip_id")}}
         </div>
         <p><input class="btn btn-default btn-submit" type="button" value="Enregistrer" onclick="this.blur();" ng-click="add_board(board_name, chip_id)"></p>
     </form>

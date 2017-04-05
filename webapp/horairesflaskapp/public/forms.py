@@ -10,8 +10,8 @@ from horairesflaskapp.user.models import User
 class LoginForm(Form):
     """Login form."""
 
-    username = StringField('Username', validators=[DataRequired()])
-    password = PasswordField('Password', validators=[DataRequired()])
+    username = StringField('Nom d\'utilisateur', validators=[DataRequired()])
+    password = PasswordField('Mot de passe', validators=[DataRequired()])
 
     def __init__(self, *args, **kwargs):
         """Create instance."""
@@ -26,14 +26,14 @@ class LoginForm(Form):
 
         self.user = User.query.filter_by(username=self.username.data).first()
         if not self.user:
-            self.username.errors.append('Unknown username')
+            self.username.errors.append('Utilisateur inconnu')
             return False
 
         if not self.user.check_password(self.password.data):
-            self.password.errors.append('Invalid password')
+            self.password.errors.append('Mot de passe invalide')
             return False
 
         if not self.user.active:
-            self.username.errors.append('User not activated')
+            self.username.errors.append('Utilisateur non activé')
             return False
         return True

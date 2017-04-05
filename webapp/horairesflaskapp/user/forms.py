@@ -10,14 +10,14 @@ from .models import User
 class RegisterForm(Form):
     """Register form."""
 
-    username = StringField('Username',
+    username = StringField('Nom d\'utilisateur',
                            validators=[DataRequired(), Length(min=3, max=25)])
     email = StringField('Email',
                         validators=[DataRequired(), Email(), Length(min=6, max=40)])
-    password = PasswordField('Password',
+    password = PasswordField('Mot de passe',
                              validators=[DataRequired(), Length(min=6, max=40)])
-    confirm = PasswordField('Verify password',
-                            [DataRequired(), EqualTo('password', message='Passwords must match')])
+    confirm = PasswordField('Vérification mot de passe',
+                            [DataRequired(), EqualTo('password', message='Les mots de passe doivent correspondre')])
 
     def __init__(self, *args, **kwargs):
         """Create instance."""
@@ -31,10 +31,10 @@ class RegisterForm(Form):
             return False
         user = User.query.filter_by(username=self.username.data).first()
         if user:
-            self.username.errors.append('Username already registered')
+            self.username.errors.append('Utilisateur déjà enregistré')
             return False
         user = User.query.filter_by(email=self.email.data).first()
         if user:
-            self.email.errors.append('Email already registered')
+            self.email.errors.append('Email déjà enregistré')
             return False
         return True

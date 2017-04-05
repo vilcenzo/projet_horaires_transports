@@ -25,12 +25,12 @@ class NewScreenForm(Form):
     titre_affichage = StringField('Titre Affichage',
                                   validators=[DataRequired(message="Titre affichage doit être renseigné"),
                                               Length(min=1, max=18, message="Titre affichage doit contenir entre 1 et 18 lettres")],
-                                  widget=AngularJSTextInput())
+                                  widget=AngularJSTextInput(), render_kw={'maxlength': 18})
 
     gare_depart = SelectField('Gare de Depart', choices=[('', u'Gare de départ')])
     gare_arrive = SelectField('Gare d\'Arrive', choices=[('', u'Gare d\'arrivée')])
 
-    type_transport = SelectField('Type de Transport', choices=[('', 'Type de transport'), ('SNCF', 'SNCF'), ('RATP', 'RATP')])
+    type_transport = SelectField('Type de Transport', choices=[('', 'Type de ligne'), ('SNCF', 'SNCF'), ('RATP', 'RATP')])
 
     board_id = StringField('board id')
 
