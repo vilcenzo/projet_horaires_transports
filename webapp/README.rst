@@ -15,29 +15,43 @@ add the following to ``.bashrc`` or ``.bash_profile``.
 
     export HORAIRESFLASKAPP_SECRET='something-really-secret'
 
-Before running shell commands, set the ``FLASK_APP`` and ``FLASK_DEBUG``
-environment variables ::
 
-    export FLASK_APP=/path/to/autoapp.py
-    export FLASK_DEBUG=1
+The very first requirement is that you have python3.5 installed and pip 
+utility pointing to this version
 
-Then run the following commands to bootstrap your environment ::
+If you don't already have it install virtualenv ::
+. If python3.5 is contained within anaconda run the following command ::
+    conda install virtualenv
+. Else run the following command ::
+    pip install virtualenv
 
+Get the source code of the project ::
     git clone https://github.com/vilcenzo/horairesflaskapp
-    cd horairesflaskapp
+
+Then create a virtualenv for this project ::
+    cd horairesflaskapp/webapp
+    virtualenv - p /path/to/your/python3.5/binary proj_python_env
+
+Now activate your virtual environment ::
+    source set_env.sh
+
+Then install the required packages ::
     pip install -r requirements/dev.txt
-    bower install
-    flask run
 
-You will see a pretty welcome screen.
+Now initialize the database ::
+    ./init_db.sh
 
-Once you have installed your DBMS, run the following to create your app's
-database tables and perform the initial migration ::
+You are ready to go now ::
+    ./run.sh
 
-    flask db init
-    flask db migrate
-    flask db upgrade
-    flask run
+
+Regular use
+-----------
+
+Once your environment is installed, to start the server ::
+    cd horairesflaskapp/webapp
+    source set_env.sh
+    ./run.sh
 
 
 Deployment

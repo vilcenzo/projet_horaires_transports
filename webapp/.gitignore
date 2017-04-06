@@ -8,4 +8,5 @@ horairesflaskapp/screen/__pycache__/
 horairesflaskapp/stations_transilien/__pycache__/
 horairesflaskapp/user/__pycache__/
 proj_python_env/
+.idea/
 
