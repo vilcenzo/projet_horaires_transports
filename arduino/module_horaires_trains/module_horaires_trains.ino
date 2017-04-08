@@ -7,6 +7,7 @@
 #include "tinyxml2.h"
 #include "SoftTimer.h"
 #include "Esp.h"
+#include "images.h"
 
 #include <DNSServer.h>            //Local DNS Server used for redirecting all requests to the configuration portal
 #include <ESP8266WebServer.h>     //Local WebServer used to serve the configuration portal
@@ -15,21 +16,6 @@
 #define TIME_BETWEEN_SCREEN_UPDATE 1000
 #define TIME_BETWEEN_TRAINS_SCRAP 30000
 #define OFFSET_BETWEEN_TRAINS_SCRAP 5000
-
-//const char *ssid =  "Livebox-F52A";   // cannot be longer than 32 characters!
-//const char *pass =  "CF7EA2F16F4951ED1E6F2C17C4";   //
-
-const char *ssid =  "Samsung S7 Edge";   // cannot be longer than 32 characters!
-const char *pass =  "xobox232";   //
-
-//const char *ssid = "CPL_essentielb";
-//const char *pass = "cbJbUU7T";
-
-//const char *ssid = "Livebox-23EC";
-//const char *pass = "Henry0304";
-
-//const char *ssid = "Livebox-23EC_EXT";
-//const char *pass = "Henry0304";
 
 WiFiClient wclient;
 const char* server = "54.171.231.139";
@@ -193,6 +179,15 @@ void fetch_ecrans_configuration() {
       print_debug("header:" + String(ecrans[0].header));
       print_debug("gare depart:" + String(ecrans[0].gare_depart));
       print_debug("gare arrivee:" + String(ecrans[0].gare_arrivee));
+    } else {
+
+      display.clear();
+      display.drawXbm(38,0, cross_width, cross_height, cross_bits);
+      display.setTextAlignment(TEXT_ALIGN_LEFT);
+      display.setFont(ArialMT_Plain_10);
+      display.drawString(10, 52, "Pas d\'arrêt enregistré");
+      display.display();      
+
     }
 
   }
@@ -307,41 +302,52 @@ static boolean callback_refresh_screen(EventBase* evt) {
   
 }
 
+
+
 void initialise_ecran_physique(){
   // Initialising the UI will init the display too.
   display.init();
   display.flipScreenVertically();
   display.clear();
+  display.drawXbm(32,0, logo_train_width, logo_train_height, logo_train_bits);
   display.setTextAlignment(TEXT_ALIGN_LEFT);
-  display.setFont(ArialMT_Plain_16);
-  display.drawString(0, 0, "Initialisation");
   display.setFont(ArialMT_Plain_10);
+  display.drawString(10, 52, "Chargement en cours...");
+  display.display();
+}
+
+
+void configModeCallback (WiFiManager *myWiFiManager) {
+  display.clear();
+  /*display.drawXbm(25,0, wifi_cross_width, wifi_cross_height, wifi_cross_bits);
+  display.setTextAlignment(TEXT_ALIGN_LEFT);
+  display.setFont(ArialMT_Plain_10);
+  display.drawString(76, 0, "Pas de");
+  display.drawString(66, 10, "connection");
+  display.drawString(74, 20, "internet");
+
+  
+  display.drawString(0, 32, "Connectez vous au réseau");
+  display.drawString(12, 42, "Wifi TCHOUTCHOUC");
+  display.drawString(10, 52, "pour configurer le Wifi");*/
+
+  display.drawXbm(38,0, wifi_cross_big_width, wifi_cross_big_height, wifi_cross_big_bits);
+  display.setTextAlignment(TEXT_ALIGN_LEFT);
+  display.setFont(ArialMT_Plain_10);
+  display.drawString(20, 52, "Pas de réseau Wifi");
+  
+  
+
+  
+  
+  display.display();
 }
 
 void connect_wifi() {
 
-  /*
-  WiFi.begin(ssid, pass);
-
-  Serial.print("Connecting");
-  while (WiFi.status() != WL_CONNECTED)
-  {
-    delay(500);
-    Serial.print(".");
-  }
-  Serial.println();
-
-  
-
-  Serial.print("Connected, IP address: ");
-  display.drawString(0, 16, "Connected, IP address: ");
-  Serial.println(WiFi.localIP());
-  display.drawString(0, 26, WiFi.localIP().toString());
-
-  display.display();*/
-
   WiFiManager wifiManager;
-  wifiManager.autoConnect("ESP_CONFIG_WIFI");
+  wifiManager.setAPCallback(configModeCallback);
+  wifiManager.autoConnect("TCHOUTCHOUC");
   
 }
 
@@ -384,19 +390,9 @@ void setup() {
   
 }
 
-String a;
-
 void loop() {
 
   timer.update();
-
-  while(Serial.available()) {
-
-    a= Serial.readString();// read the incoming data as string
-    
-    Serial.println(a);
-
-  }
 
 }
 
