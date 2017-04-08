@@ -65,8 +65,13 @@ def get_info():
 
     board = Board.query.filter_by(chip_id=chip_id).first()
 
-    screens = Screen.query.filter_by(board_id = board.id).all()
-    nbr_ecrans = Screen.query.filter_by(board_id = board.id).count()
+    if board is not None:
+        screens = Screen.query.filter_by(board_id = board.id).all()
+        nbr_ecrans = Screen.query.filter_by(board_id = board.id).count()
+    else:
+        screens = []
+        nbr_ecrans = 0
+
 
     ecrans = []
 
