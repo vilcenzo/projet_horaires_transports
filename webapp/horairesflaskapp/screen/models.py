@@ -11,7 +11,7 @@ class Screen(SurrogatePK, Model):
     __tablename__ = 'screens'
     gare_depart = Column(db.Integer(), unique=False, nullable=False)
     gare_arrive = Column(db.Integer(), unique=False, nullable=False)
-    titre_affichage = Column(db.String(15), unique=False, nullable=False)
+    titre_affichage = Column(db.String(18), unique=False, nullable=False)
     type_transport = Column(db.String(10), unique=False, nullable=False)
     board_id = reference_col('boards', nullable=False)
     board = relationship('Board', backref='screens')
