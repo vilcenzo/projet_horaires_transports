@@ -37,7 +37,7 @@ typedef struct {
 
 Ecran_t* ecrans;
 
-int ecran_courant  = 1;
+int ecran_courant  = 0;
 int nbr_ecrans=0;
 
 SSD1306  display(0x3c, D2, D1);
